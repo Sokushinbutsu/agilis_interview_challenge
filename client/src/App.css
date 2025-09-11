@@ -22,8 +22,14 @@
 
 .add-task-form {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 2rem;
+}
+
+.add-task-form .form-row {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .task-input {
@@ -150,6 +156,13 @@
   text-align: center;
   padding: 3rem;
   color: #888;
+}
+
+.draft-status {
+  color: #888;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  align-self: flex-start;
 }
 
 @media (prefers-color-scheme: light) {

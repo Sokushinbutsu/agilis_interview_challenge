@@ -50,26 +50,20 @@ app.get('/api/tasks/:id', (req, res) => {
   }
 });
 
-// Create new task - This will have Bug 3: Silent failure
+// add a single task
 app.post('/api/tasks', (req, res) => {
-  // Bug 3: This endpoint will fail silently
-  // The client will think it succeeded but the task won't be saved
   const { title } = req.body;
   
   if (!title) {
-    // Not sending proper error response
     return;
   }
   
-  // Simulate a database error by not actually saving
-  // but still sending a success-like response
   res.status(200).json({
     id: Date.now().toString(),
     title,
     completed: false,
     createdAt: new Date().toISOString(),
   });
-  // Note: We're NOT adding to the tasks array!
 });
 
 // Update task
