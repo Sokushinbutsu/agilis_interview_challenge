@@ -1,0 +1,37 @@
+import { Task } from '../types';
+
+interface TaskItemProps {
+  task: Task;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+  // Bug 4: No loading state during toggle operation
+  const handleToggle = () => {
+    onToggle(task.id);
+  };
+
+  return (
+    <li className="task-item">
+      <label className="task-checkbox-label">
+        <input
+          type="checkbox"
+          checked={task.completed}
+          onChange={handleToggle}
+          className="task-checkbox"
+        />
+        <span className={task.completed ? 'task-title completed' : 'task-title'}>
+          {task.title}
+        </span>
+      </label>
+      <button
+        onClick={() => onDelete(task.id)}
+        className="delete-button"
+        aria-label="Delete task"
+      >
+        ×
+      </button>
+    </li>
+  );
+}
