@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "title": "Complete project documentation",
+    "completed": true,
+    "createdAt": "2025-09-11T18:21:19.127Z"
+  },
+  {
+    "id": "2",
+    "title": "Review pull requests",
+    "completed": true,
+    "createdAt": "2025-09-11T18:21:19.128Z"
+  },
+  {
+    "id": "3",
+    "title": "Update dependencies",
+    "completed": false,
+    "createdAt": "2025-09-11T18:21:19.128Z"
+  }
+]

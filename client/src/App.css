@@ -165,6 +165,18 @@
   align-self: flex-start;
 }
 
+.undo-indicator {
+  margin-top: 0.5rem;
+}
+
+.undo-indicator small {
+  color: #646cff;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(100, 108, 255, 0.1);
+  border-radius: 4px;
+}
+
 @media (prefers-color-scheme: light) {
   .task-item {
     background-color: #f9f9f9;

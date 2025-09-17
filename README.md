@@ -25,25 +25,21 @@ Welcome! This is a simple task management application built with React, TypeScri
 
 This is a task management app where users can:
 - View all tasks
-- Add new tasks
+- Add new tasks with auto-save draft functionality
 - Mark tasks as complete/incomplete
 - Filter tasks by status (All, Active, Completed)
 - Delete tasks
 
-## Known Issues
 
-There are several bugs in this application that need to be fixed. Work through them in order:
-
-1. **The application crashes on startup** - Figure out why and fix it
-2. **TypeScript compilation errors** - There are type-related issues to resolve
-3. **Adding tasks doesn't work properly** - Tasks appear to be added but something is wrong
-4. **Task completion has issues** - Try rapidly clicking checkboxes and run the tests
+## Goals
+There are multiple bugs in this application, your goal is to fix as many of them as you can in 1 hour. 
 
 ## Tips
 
 - Use the browser's developer tools (Console and Network tabs)
-- Pay attention to error messages
+- Pay attention to TypeScript errors and React warnings
 - Some bugs might have multiple valid solutions
 - The tests can provide hints about expected behavior
+- Consider performance implications of your fixes
 
 Good luck!

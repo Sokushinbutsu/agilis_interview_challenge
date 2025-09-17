@@ -13,18 +13,42 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<TaskStatus>('all');
   const [loading, setLoading] = useState(true);
+  const [undoHistory, setUndoHistory] = useState<Task[][]>([]);
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [undoHistory]);
+
+  const captureSnapshot = () => {
+    setUndoHistory(prev => [...prev.slice(-9), [...tasks]]);
+  };
+
+  const undo = () => {
+    if (undoHistory.length === 0) return;
+    
+    const lastSnapshot = undoHistory[undoHistory.length - 1];
+    setTasks(lastSnapshot);
+    setUndoHistory(prev => prev.slice(0, -1));
+  };
+
   const fetchTasks = async () => {
     try {
-      // Bug 1: This will throw because API_URL is undefined
       const response = await fetch(`${API_URL}/tasks`);
-      console.log(API_URL);
       const data = await response.json();
       setTasks(data);
+      console.log(data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
     } finally {
@@ -33,6 +57,7 @@ function App() {
   };
 
   const addTask = async (title: string) => {
+    captureSnapshot();
     try {
       const response = await fetch(`${API_URL}/tasks`, {
         method: 'POST',
@@ -52,6 +77,7 @@ function App() {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
 
+    captureSnapshot();
     try {
       const response = await fetch(`${API_URL}/tasks/${id}`, {
         method: 'PUT',
@@ -67,6 +93,7 @@ function App() {
   };
 
   const deleteTask = async (id: string) => {
+    captureSnapshot();
     try {
       await fetch(`${API_URL}/tasks/${id}`, {
         method: 'DELETE',
@@ -89,6 +116,11 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>Task Manager</h1>
+        {undoHistory.length > 0 && (
+          <div className="undo-indicator">
+            <small>Press Ctrl+Z to undo</small>
+          </div>
+        )}
       </header>
       
       <main className="app-main">

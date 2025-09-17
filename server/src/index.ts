@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs/promises';
+import path from 'path';
 
 const app = express();
 const PORT = 3001;
@@ -14,7 +16,9 @@ interface Task {
   createdAt: string;
 }
 
-let tasks: Task[] = [
+const DB_FILE = path.join(process.cwd(), 'data', 'tasks.json');
+
+const defaultTasks: Task[] = [
   {
     id: '1',
     title: 'Complete project documentation',
@@ -35,61 +39,112 @@ let tasks: Task[] = [
   },
 ];
 
+// Database functions
+const loadTasks = async (): Promise<Task[]> => {
+  try {
+    const data = await fs.readFile(DB_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch {
+    // File doesn't exist, create it with default data
+    await saveTasks(defaultTasks);
+    return defaultTasks;
+  }
+};
+
+const saveTasks = async (tasks: Task[]): Promise<void> => {
+  await fs.mkdir(path.dirname(DB_FILE), { recursive: true });
+  await fs.writeFile(DB_FILE, JSON.stringify(tasks, null, 2));
+};
+
 // Get all tasks
-app.get('/api/tasks', (req, res) => {
-  res.json(tasks);
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const tasks = await loadTasks();
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load tasks' });
+  }
 });
 
 // Get single task
-app.get('/api/tasks/:id', (req, res) => {
-  const task = tasks.find(t => t.id === req.params.id);
-  if (task) {
-    res.json(task);
-  } else {
-    res.status(404).json({ error: 'Task not found' });
+app.get('/api/tasks/:id', async (req, res) => {
+  try {
+    const tasks = await loadTasks();
+    const task = tasks.find(t => t.id === req.params.id);
+    if (task) {
+      res.json(task);
+    } else {
+      res.status(404).json({ error: 'Task not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load tasks' });
   }
 });
 
-// add a single task
-app.post('/api/tasks', (req, res) => {
+// Create new task - Bug 3: Silent failure
+app.post('/api/tasks', async (req, res) => {
   const { title } = req.body;
   
   if (!title) {
-    return;
+    return res.status(400).json({ error: 'Title is required' });
   }
   
-  res.status(200).json({
-    id: Date.now().toString(),
-    title,
-    completed: false,
-    createdAt: new Date().toISOString(),
-  });
+  try {
+    // Bug 3: Return success response but don't actually save the task
+    const newTask = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+      createdAt: new Date().toISOString(),
+    };
+    
+    // Note: NOT saving to file - this is the bug!
+    // const tasks = await loadTasks();
+    // tasks.push(newTask);
+    // await saveTasks(tasks);
+    
+    res.status(200).json(newTask);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create task' });
+  }
 });
 
 // Update task
-app.put('/api/tasks/:id', (req, res) => {
-  const taskIndex = tasks.findIndex(t => t.id === req.params.id);
-  
-  if (taskIndex !== -1) {
-    // Simulate async delay for Bug 4
-    setTimeout(() => {
-      tasks[taskIndex] = { ...tasks[taskIndex], ...req.body };
-      res.json(tasks[taskIndex]);
-    }, 100); // Small delay to create race condition
-  } else {
-    res.status(404).json({ error: 'Task not found' });
+app.put('/api/tasks/:id', async (req, res) => {
+  try {
+    const tasks = await loadTasks();
+    const taskIndex = tasks.findIndex(t => t.id === req.params.id);
+    
+    if (taskIndex !== -1) {
+      // Simulate async delay for Bug 4
+      setTimeout(async () => {
+        tasks[taskIndex] = { ...tasks[taskIndex], ...req.body };
+        await saveTasks(tasks);
+        res.json(tasks[taskIndex]);
+      }, 100); // Small delay to create race condition
+    } else {
+      res.status(404).json({ error: 'Task not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update task' });
   }
 });
 
 // Delete task
-app.delete('/api/tasks/:id', (req, res) => {
-  const taskIndex = tasks.findIndex(t => t.id === req.params.id);
-  
-  if (taskIndex !== -1) {
-    tasks.splice(taskIndex, 1);
-    res.status(204).send();
-  } else {
-    res.status(404).json({ error: 'Task not found' });
+app.delete('/api/tasks/:id', async (req, res) => {
+  try {
+    const tasks = await loadTasks();
+    const taskIndex = tasks.findIndex(t => t.id === req.params.id);
+    
+    if (taskIndex !== -1) {
+      tasks.splice(taskIndex, 1);
+      await saveTasks(tasks);
+      res.status(204).send();
+    } else {
+      res.status(404).json({ error: 'Task not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete task' });
   }
 });
 
