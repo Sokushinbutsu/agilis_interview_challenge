@@ -63,7 +63,6 @@ describe('TaskItem', () => {
     expect(mockOnToggle).toHaveBeenCalledWith('1');
   });
 
-  // Bug 4: This test will fail - reveals the race condition
   it('prevents rapid clicks during async operation', async () => {
     const slowToggle = jest.fn().mockImplementation(() => {
       return new Promise(resolve => setTimeout(resolve, 100));
@@ -85,8 +84,6 @@ describe('TaskItem', () => {
 
     // Wait for any pending operations
     await waitFor(() => {
-      // Bug 4: This will fail - we expect only 1 call but there will be 5
-      // because the checkbox isn't disabled during the async operation
       expect(slowToggle).toHaveBeenCalledTimes(1);
     }, { timeout: 1000 });
   });
@@ -113,7 +110,6 @@ describe('TaskItem', () => {
     // Start toggle operation
     fireEvent.click(checkbox);
 
-    // Bug 4: This will fail - checkbox should be disabled during async operation
     expect(checkbox).toBeDisabled();
 
     // Resolve the promise

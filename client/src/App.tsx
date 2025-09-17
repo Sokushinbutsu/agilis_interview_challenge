@@ -6,7 +6,6 @@ import { TaskFilter } from './components/TaskFilter';
 import { filterTasks } from './utils/filterTasks';
 import './App.css';
 
-// Bug 1: This will crash on startup because API_URL is required but not defined
 const API_URL = import.meta.env.VITE_API_URL;
 
 function App() {
@@ -66,7 +65,6 @@ function App() {
       });
       
       const newTask = await response.json();
-      // Bug 3: This will add the task to UI but it's not saved on server
       setTasks([...tasks, newTask]);
     } catch (error) {
       console.error('Failed to add task:', error);
@@ -105,7 +103,6 @@ function App() {
     }
   };
 
-  // Bug 2: This uses the problematic filter system
   const filteredTasks = filterTasks(tasks, { kind: 'status', status: filter });
 
   if (loading) {

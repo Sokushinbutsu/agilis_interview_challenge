@@ -7,7 +7,6 @@ interface TaskItemProps {
 }
 
 export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
-  // Bug 4: No loading state during toggle operation
   const handleToggle = () => {
     onToggle(task.id);
   };

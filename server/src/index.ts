@@ -81,7 +81,6 @@ app.get('/api/tasks/:id', async (req, res) => {
   }
 });
 
-// Create new task - Bug 3: Silent failure
 app.post('/api/tasks', async (req, res) => {
   const { title } = req.body;
   
@@ -90,7 +89,6 @@ app.post('/api/tasks', async (req, res) => {
   }
   
   try {
-    // Bug 3: Return success response but don't actually save the task
     const newTask = {
       id: Date.now().toString(),
       title,
@@ -98,10 +96,6 @@ app.post('/api/tasks', async (req, res) => {
       createdAt: new Date().toISOString(),
     };
     
-    // Note: NOT saving to file - this is the bug!
-    // const tasks = await loadTasks();
-    // tasks.push(newTask);
-    // await saveTasks(tasks);
     
     res.status(200).json(newTask);
   } catch (error) {
@@ -116,7 +110,6 @@ app.put('/api/tasks/:id', async (req, res) => {
     const taskIndex = tasks.findIndex(t => t.id === req.params.id);
     
     if (taskIndex !== -1) {
-      // Simulate async delay for Bug 4
       setTimeout(async () => {
         tasks[taskIndex] = { ...tasks[taskIndex], ...req.body };
         await saveTasks(tasks);
