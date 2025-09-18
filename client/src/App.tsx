@@ -6,13 +6,15 @@ import { TaskFilter } from './components/TaskFilter';
 import { filterTasks } from './utils/filterTasks';
 import './App.css';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "api";
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<TaskStatus>('all');
   const [loading, setLoading] = useState(true);
   const [undoHistory, setUndoHistory] = useState<Task[][]>([]);
+
+  console.log(undoHistory,"undoHistory")
 
   useEffect(() => {
     fetchTasks();
@@ -43,8 +45,10 @@ function App() {
   };
 
   const fetchTasks = async () => {
+    console.log("fetch task calleed")
     try {
-      const response = await fetch(`${API_URL}/tasks`);
+      console.log(API_URL);
+      const response = await fetch(`api/tasks`);
       const data = await response.json();
       setTasks(data);
       console.log(data);
@@ -63,15 +67,19 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title }),
       });
+
+      
       
       const newTask = await response.json();
-      setTasks([...tasks, newTask]);
+
+      setTasks(newTask);
     } catch (error) {
       console.error('Failed to add task:', error);
     }
   };
 
   const toggleTask = async (id: string) => {
+    console.log("toggle task ")
     const task = tasks.find(t => t.id === id);
     if (!task) return;
 
