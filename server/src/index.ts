@@ -62,6 +62,7 @@ app.get('/api/tasks', async (req, res) => {
     const tasks = await loadTasks();
     res.json(tasks);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'Failed to load tasks' });
   }
 });
@@ -83,21 +84,26 @@ app.get('/api/tasks/:id', async (req, res) => {
 
 app.post('/api/tasks', async (req, res) => {
   const { title } = req.body;
+
+  console.log(title)
   
   if (!title) {
     return res.status(400).json({ error: 'Title is required' });
   }
   
   try {
+    const tasks = await loadTasks();
     const newTask = {
       id: Date.now().toString(),
       title,
       completed: false,
       createdAt: new Date().toISOString(),
     };
-    
-    
-    res.status(200).json(newTask);
+
+    const newlist = [...tasks, newTask]
+
+    await saveTasks(newlist)
+    res.status(200).json(newlist);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create task' });
   }
@@ -107,6 +113,7 @@ app.post('/api/tasks', async (req, res) => {
 app.put('/api/tasks/:id', async (req, res) => {
   try {
     const tasks = await loadTasks();
+    console.log("tasks",tasks)
     const taskIndex = tasks.findIndex(t => t.id === req.params.id);
     
     if (taskIndex !== -1) {
